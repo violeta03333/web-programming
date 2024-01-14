@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joc de memorie audio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Joc de memorie audio</h2>
+    <p id="message">Ascultați și redați secvența:</p>
+
+    <div id="buttons-container">
+        <button onclick="playSequence()">Redă Secvența</button>
+    </div>
+
+    <script>
+        const audioFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3'];
+        let sequence = [];
+        let userSequence = [];
+        let level = 1;
+        let messageElement = document.getElementById('message');
+        let buttonsContainer = document.getElementById('buttons-container');
+
+        function playSound(soundFile) {
+            const audio = new Audio(soundFile);
+            audio.play();
+        }
+
+        function playSequence() {
+            buttonsContainer.innerHTML = ''; // Clear previous buttons
+            userSequence = [];
+
+            // Generate a new random sound and add it to the sequence
+            const randomSound = audioFiles[Math.floor(Math.random() * audioFiles.length)];
+            sequence.push(randomSound);
+
+            // Play the generated sequence
+            sequence.forEach((sound, index) => {
+                setTimeout(() => {
+                    playSound(sound);
+                }, index * 1000);
+            });
+
+            // Display buttons for user input after the sequence is played
+            setTimeout(() => {
+                displayButtons();
+            }, sequence.length * 1000 + 1000);
+
+            messageElement.textContent = 'Reproduceți secvența de sunete.';
+        }
+
+        function displayButtons() {
+            sequence.forEach((sound, index) => {
+                const button = document.createElement('button');
+                button.textContent = `Sunet ${index + 1}`;
+                button.onclick = () => userClick(index);
+                buttonsContainer.appendChild(button);
+            });
+        }
+
+        function userClick(index) {
+            const clickedSound = audioFiles[index];
+            userSequence.push(clickedSound);
+            
+            playSound(clickedSound);
+
+            // Check if the user's sequence matches the generated sequence
+            if (JSON.stringify(userSequence) === JSON.stringify(sequence)) {
+                messageElement.textContent = 'Corect! Trecem la nivelul următor.';
+                level++;
+                setTimeout(() => {
+                    playSequence();
+                }, 2000);
+            } else {
+                messageElement.textContent = 'Greșit! Jocul se oprește. Apăsați "Redă Secvența" pentru a începe din nou.';
+                sequence = [];
+                level = 1;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+//2.	Implementați un joc simplu de „Trivia”
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joc de Trivia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #question {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .option {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Joc de Trivia</h2>
+    <div id="question"></div>
+    <div class="options" id="options"></div>
+    <div id="score">Punctaj: 0</div>
+    <div id="result"></div>
+
+    <script>
+        const questions = [
+            {
+                question: 'Care este capitala Franței?',
+                options: ['Berlin', 'Paris', 'Londra', 'Madrid'],
+                correctAnswer: 'Paris'
+            },
+            {
+                question: 'Care este cel mai mare ocean al lumii?',
+                options: ['Oceanul Atlantic', 'Oceanul Indian', 'Oceanul Arctic', 'Oceanul Pacific'],
+                correctAnswer: 'Oceanul Pacific'
+            },
+            {
+                question: 'Cine a scris "Romeo și Julieta"?',
+                options: ['Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Leo Tolstoy'],
+                correctAnswer: 'William Shakespeare'
+            }
+            // Adăugați mai multe întrebări aici
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const scoreElement = document.getElementById('score');
+        const resultElement = document.getElementById('result');
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+
+            questionElement.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = '';
+
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => checkAnswer(option, currentQuestion.correctAnswer);
+
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        function checkAnswer(userAnswer, correctAnswer) {
+            if (userAnswer === correctAnswer) {
+                score++;
+                resultElement.textContent = 'Răspuns corect!';
+            } else {
+                resultElement.textContent = `Răspuns greșit! Răspunsul corect era: ${correctAnswer}`;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+
+            updateScore();
+        }
+
+        function updateScore() {
+            scoreElement.textContent = `Punctaj: ${score}`;
+        }
+
+        function endGame() {
+            questionElement.textContent = 'Jocul s-a încheiat!';
+            optionsContainer.innerHTML = '';
+            resultElement.textContent = `Punctaj final: ${score} din ${questions.length}`;
+        }
+
+        // Inițializăm jocul
+        loadQuestion();
+    </script>
+</body>
+</html>
