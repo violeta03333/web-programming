@@ -100,3 +100,235 @@
 
 </body>
 </html>
+
+
+// 2.	Validare Formular
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formular de Înregistrare</title>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<form id="registrationForm" onsubmit="return validateForm()">
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email">
+    <span id="emailError" class="error-message"></span>
+
+    <br>
+
+    <label for="password">Parolă:</label>
+    <input type="password" id="password" name="password">
+    <span id="passwordError" class="error-message"></span>
+
+    <br>
+
+    <label for="confirmPassword">Confirmă Parola:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword">
+    <span id="confirmPasswordError" class="error-message"></span>
+
+    <br>
+
+    <input type="submit" value="Înregistrare">
+</form>
+
+<script>
+    function validateForm() {
+        // Resetarea mesajelor de eroare
+        document.getElementById('emailError').textContent = '';
+        document.getElementById('passwordError').textContent = '';
+        document.getElementById('confirmPasswordError').textContent = '';
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Validare adresa de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('emailError').textContent = 'Introduceți o adresă de email validă.';
+            return false;
+        }
+
+        // Validare parolă (minim 8 caractere, cel puțin o literă majusculă, o literă minusculă și un număr)
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            document.getElementById('passwordError').textContent = 'Parola trebuie să conțină cel puțin 8 caractere, o literă majusculă, o literă minusculă și un număr.';
+            return false;
+        }
+
+        // Validare confirmare parolă
+        if (password !== confirmPassword) {
+            document.getElementById('confirmPasswordError').textContent = 'Parola și confirmarea parolei nu coincid.';
+            return false;
+        }
+
+        // Returnează true dacă toate validările sunt trecute
+        return true;
+    }
+</script>
+
+</body>
+</html>
+
+// 3.	Listă de sarcini (To-Do List)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #taskInput {
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .taskItem {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f0f0f0;
+        }
+
+        .taskItem button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Adăugați o nouă sarcină">
+    <button onclick="addTask()">Adaugă</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+        // Funcția pentru adăugarea unei noi sarcini
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+
+            if (taskText === '') {
+                alert('Introduceți o sarcină validă!');
+                return;
+            }
+
+            // Obținem lista curentă de sarcini din localStorage
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            // Adăugăm noua sarcină la listă
+            tasks.push({ text: taskText, completed: false });
+
+            // Salvăm lista actualizată în localStorage
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+
+            // Actualizăm afișarea listei
+            displayTasks();
+
+            // Resetăm input-ul
+            taskInput.value = '';
+        }
+
+        // Funcția pentru afișarea sarcinilor
+        function displayTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            // Obținem lista curentă de sarcini din localStorage
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('li');
+                taskItem.className = 'taskItem';
+
+                // Creăm elementul pentru textul sarcinii
+                const taskText = document.createElement('span');
+                taskText.textContent = task.text;
+
+                // Creăm elementul pentru butoane (completare, editare, ștergere)
+                const buttons = document.createElement('div');
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = task.completed ? 'Reactivează' : 'Completează';
+                completeButton.onclick = () => toggleTaskComplete(index);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Editează';
+                editButton.onclick = () => editTask(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Șterge';
+                deleteButton.onclick = () => deleteTask(index);
+
+                // Adăugăm butoanele la container
+                buttons.appendChild(completeButton);
+                buttons.appendChild(editButton);
+                buttons.appendChild(deleteButton);
+
+                // Adăugăm elementele la item-ul sarcinii
+                taskItem.appendChild(taskText);
+                taskItem.appendChild(buttons);
+
+                // Adăugăm item-ul la lista de sarcini
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // Funcția pentru ștergerea unei sarcini
+        function deleteTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            displayTasks();
+        }
+
+        // Funcția pentru marcarea/nea marcarea unei sarcini ca fiind completată
+        function toggleTaskComplete(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            displayTasks();
+        }
+
+        // Funcția pentru editarea unei sarcini
+        function editTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const newText = prompt('Introduceți noua valoare:', tasks[index].text);
+            
+            if (newText !== null) {
+                tasks[index].text = newText.trim();
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                displayTasks();
+            }
+        }
+
+        // Afișăm sarcinile la încărcarea paginii
+        displayTasks();
+    </script>
+</body>
+</html>
