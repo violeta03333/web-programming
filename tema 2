@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider de Imagini</title>
+    <style>
+        #slider-container {
+            max-width: 600px;
+            margin: auto;
+            overflow: hidden;
+            position: relative;
+        }
 
+        #slider-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slider-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            outline: none;
+            user-select: none;
+        }
+
+        #prevBtn {
+            left: 10px;
+        }
+
+        #nextBtn {
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="slider-container">
+    <div id="slider-images">
+        <img class="slider-image" src="image1.jpg" alt="Image 1">
+        <img class="slider-image" src="image2.jpg" alt="Image 2">
+        <img class="slider-image" src="image3.jpg" alt="Image 3">
+        <!-- Adaugă mai multe imagini după nevoie -->
+    </div>
+    <button class="slider-btn" id="prevBtn" onclick="prevSlide()">❮</button>
+    <button class="slider-btn" id="nextBtn" onclick="nextSlide()">❯</button>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slider-image');
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        if (index < 0) {
+            currentSlide = totalSlides - 1;
+        } else if (index >= totalSlides) {
+            currentSlide = 0;
+        } else {
+            currentSlide = index;
+        }
+
+        const translationValue = -currentSlide * 100 + '%';
+        document.getElementById('slider-images').style.transform = 'translateX(' + translationValue + ')';
+    }
+
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+    }
+
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
+
+    // Setează intervalul pentru automatizarea sliderului
+    const autoSlideInterval = setInterval(nextSlide, 3000);
+
+    // Oprește automatizarea când mouse-ul este deasupra sliderului
+    document.getElementById('slider-container').addEventListener('mouseenter', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    // Reia automatizarea când mouse-ul părăsește sliderul
+    document.getElementById('slider-container').addEventListener('mouseleave', () => {
+        autoSlideInterval = setInterval(nextSlide, 3000);
+    });
+</script>
+
+</body>
+</html>
