@@ -1,0 +1,122 @@
+// App.js
+import React, { useState, useEffect } from 'react';
+import NoteList from './NoteList';
+
+function App() {
+  const [notes, setNotes] = useState([]);
+  const [currentNote, setCurrentNote] = useState('');
+
+  useEffect(() => {
+    // Fetch notes from server on component mount
+    fetchNotes();
+  }, []);
+
+  const fetchNotes = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/notes');
+      const data = await response.json();
+      setNotes(data);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
+
+  const saveNote = async () => {
+    try {
+      await fetch('http://localhost:3001/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: currentNote }),
+      });
+      fetchNotes();
+      setCurrentNote('');
+    } catch (error) {
+      console.error('Error saving note:', error);
+    }
+  };
+
+  const deleteNote = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/notes/${id}`, {
+        method: 'DELETE',
+      });
+      fetchNotes();
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
+  return (
+    <div>
+      <textarea
+        value={currentNote}
+        onChange={(e) => setCurrentNote(e.target.value)}
+        placeholder="Type your note here..."
+      />
+      <button onClick={saveNote}>Save Note</button>
+      <NoteList notes={notes} onDelete={deleteNote} />
+    </div>
+  );
+}
+
+export default App;
+
+
+jsx: 
+
+// NoteList.js
+import React from 'react';
+
+const NoteList = ({ notes, onDelete }) => (
+  <ul>
+    {notes.map((note) => (
+      <li key={note._id}>
+        <div>{note.content}</div>
+        <button onClick={() => onDelete(note._id)}>Delete</button>
+      </li>
+    ))}
+  </ul>
+);
+
+export default NoteList;
+
+
+Backend (Node.js cu Express):
+javascript
+
+// server.js
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
+
+const app = express();
+const port = 3001;
+
+let notes = [];
+
+app.use(cors());
+app.use(bodyParser.json());
+
+app.get('/notes', (req, res) => {
+  res.json(notes);
+});
+
+app.post('/notes', (req, res) => {
+  const { content } = req.body;
+  const newNote = { _id: uuidv4(), content };
+  notes.push(newNote);
+  res.json(newNote);
+});
+
+app.delete('/notes/:id', (req, res) => {
+  const { id } = req.params;
+  notes = notes.filter((note) => note._id !== id);
+  res.json({ success: true });
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
